@@ -413,7 +413,8 @@ namespace Elmah
 
             foreach (string key in collection.Keys)
             {
-                copy.Add(key, collection[key].ToString());
+	            if (key != null)
+		            copy.Add(key, collection[key]?.ToString());
             }
 
             return copy;
