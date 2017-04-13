@@ -102,7 +102,8 @@ namespace Elmah
             Member(writer, "statusCode", error.StatusCode, 0);
             Member(writer, "webHostHtmlMessage", error.WebHostHtmlMessage);
             Member(writer, "serverVariables", error.ServerVariables);
-            Member(writer, "queryString", error.QueryString);
+			Member(writer, "data", error.Data);
+			Member(writer, "queryString", error.QueryString);
             Member(writer, "form", error.Form);
             Member(writer, "cookies", error.Cookies);
         }

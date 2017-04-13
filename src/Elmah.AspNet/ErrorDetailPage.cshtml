@@ -138,30 +138,39 @@ private void RenderCollection(HtmlTextWriter writer,
 *@
 
 @{
-    var collection = new
-    {
-        Data  = error.ServerVariables,
-        Id    = "ServerVariables",
-        Title = "Server Variables",
-    };
+	var collections = new[]
+					  {
+						  new
+						  {
+							  Data = error.ServerVariables,
+							  Id = "ServerVariables",
+							  Title = "Server Variables",
+						  },
+						  new
+						  {
+							  Data = error.Data,
+							  Id = "ExceptionData",
+							  Title = "Exception Data",
+						  }
+					  };
 
-    //
-    // If the collection isn't there or it's empty, then bail out.
-    //
+	//
+	// If the collection isn't there or it's empty, then bail out.
+	//
+	foreach(var collection in collections)
+	if (collection.Data != null && collection.Data.Count > 0)
+	{
+		var items =
+			from i in Enumerable.Range(0, collection.Data.Count)
+			select new
+			{
+				Index  = i,
+				Key    = collection.Data.GetKey(i),
+				Value  = collection.Data[i],
+			};
 
-    if (collection.Data != null && collection.Data.Count > 0)
-    {
-        var items = 
-            from i in Enumerable.Range(0, collection.Data.Count)
-            select new
-            {
-                Index  = i,
-                Key    = collection.Data.GetKey(i),
-                Value  = collection.Data[i],
-            };
-        
-        items = items.OrderBy(e => e.Key, StringComparer.OrdinalIgnoreCase);
-        
+		items = items.OrderBy(e => e.Key, StringComparer.OrdinalIgnoreCase);
+
         <div id="@collection.Id">
 
             <h2>@collection.Title</h2>

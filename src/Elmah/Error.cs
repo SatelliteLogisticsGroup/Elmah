@@ -28,7 +28,9 @@ namespace Elmah
     #region Imports
 
     using System;
+    using System.Collections;
     using System.Diagnostics;
+    using System.Linq;
     using System.Security;
     using System.Security.Principal;
     using System.Web;
@@ -58,6 +60,7 @@ namespace Elmah
         private DateTime _time;
         private int _statusCode;
         private string _webHostHtmlMessage;
+        private NameValueCollection _data;
         private NameValueCollection _serverVariables;
         private NameValueCollection _queryString;
         private NameValueCollection _form;
@@ -113,6 +116,7 @@ namespace Elmah
             _detail = e.ToString();
             _user = Thread.CurrentPrincipal.Identity.Name ?? string.Empty;
             _time = DateTime.Now;
+            _data = CopyCollection(baseException.Data);
 
             //
             // If this is an HTTP exception, then get the status code
@@ -352,6 +356,12 @@ namespace Elmah
             get { return FaultIn(ref _cookies); }
         }
 
+
+        /// <summary>
+        /// Gets a collection representing additional user-defined data and information of the error.
+        /// </summary>
+        public NameValueCollection Data => FaultIn(ref _data);
+
         /// <summary>
         /// Returns the value of the <see cref="Message"/> property.
         /// </summary>
@@ -381,6 +391,7 @@ namespace Elmah
             copy._queryString = CopyCollection(_queryString);
             copy._form = CopyCollection(_form);
             copy._cookies = CopyCollection(_cookies);
+            copy._data = CopyCollection(_data);
 
             return copy;
         }
@@ -391,6 +402,21 @@ namespace Elmah
                 return null;
 
             return new NameValueCollection(collection);
+        }
+
+        private static NameValueCollection CopyCollection(IDictionary collection)
+        {
+            if (collection == null || collection.Count == 0)
+                return null;
+
+            var copy = new NameValueCollection(collection.Count);
+
+            foreach (string key in collection.Keys)
+            {
+                copy.Add(key, collection[key].ToString());
+            }
+
+            return copy;
         }
 
         private static NameValueCollection CopyCollection(HttpCookieCollection cookies)

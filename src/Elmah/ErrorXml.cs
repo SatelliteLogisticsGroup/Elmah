@@ -146,7 +146,8 @@ namespace Elmah
 
                 switch (reader.Name)
                 {
-                    case "serverVariables" : collection = error.ServerVariables; break;
+					case "data"            : collection = error.Data; break;
+					case "serverVariables" : collection = error.ServerVariables; break;
                     case "queryString"     : collection = error.QueryString; break;
                     case "form"            : collection = error.Form; break;
                     case "cookies"         : collection = error.Cookies; break;
@@ -240,7 +241,8 @@ namespace Elmah
             WriteCollection(writer, "queryString", error.QueryString);
             WriteCollection(writer, "form", error.Form);
             WriteCollection(writer, "cookies", error.Cookies);
-        }
+			WriteCollection(writer, "data", error.Data);
+		}
 
         private static void WriteCollection(XmlWriter writer, string name, NameValueCollection collection)
         {
