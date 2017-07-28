@@ -445,7 +445,7 @@ namespace Elmah
 						copy.Add(key, currentException.Data[key]?.ToString());
 				}
 
-				currentException = e.InnerException;
+				currentException = currentException.InnerException;
 			}
 
 			return copy;
