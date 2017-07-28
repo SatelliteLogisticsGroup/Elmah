@@ -29,6 +29,7 @@ namespace Elmah
 
     using System;
     using System.Collections;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
     using System.Security;
@@ -116,7 +117,7 @@ namespace Elmah
             _detail = e.ToString();
             _user = Thread.CurrentPrincipal.Identity.Name ?? string.Empty;
             _time = DateTime.Now;
-            _data = CopyCollection(baseException.Data);
+	        _data = AggregateExceptionDataCollections(e);
 
             //
             // If this is an HTTP exception, then get the status code
@@ -404,22 +405,6 @@ namespace Elmah
             return new NameValueCollection(collection);
         }
 
-        private static NameValueCollection CopyCollection(IDictionary collection)
-        {
-            if (collection == null || collection.Count == 0)
-                return null;
-
-            var copy = new NameValueCollection(collection.Count);
-
-            foreach (string key in collection.Keys)
-            {
-	            if (key != null)
-		            copy.Add(key, collection[key]?.ToString());
-            }
-
-            return copy;
-        }
-
         private static NameValueCollection CopyCollection(HttpCookieCollection cookies)
         {
             if (cookies == null || cookies.Count == 0)
@@ -442,7 +427,31 @@ namespace Elmah
             return copy;
         }
 
-        private static NameValueCollection FaultIn(ref NameValueCollection collection)
+		/// <summary>
+		/// goes through all exceptions in stack and aggregates their Data collections
+		/// </summary>
+		/// <param name="e"></param>
+		/// <returns></returns>
+	    private static NameValueCollection AggregateExceptionDataCollections(Exception e)
+		{
+			var copy = new NameValueCollection(StringComparer.OrdinalIgnoreCase);
+
+			Exception currentException = e;
+			while (currentException != null)
+			{
+				foreach (string key in currentException.Data.Keys)
+				{
+					if (key != null)
+						copy.Add(key, currentException.Data[key]?.ToString());
+				}
+
+				currentException = e.InnerException;
+			}
+
+			return copy;
+		}
+
+		private static NameValueCollection FaultIn(ref NameValueCollection collection)
         {
             if (collection == null)
                 collection = new NameValueCollection();
