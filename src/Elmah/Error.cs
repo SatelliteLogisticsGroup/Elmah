@@ -161,6 +161,16 @@ namespace Elmah
                 _cookies = CopyCollection(qsfc.Cookies);
             }
 
+            try
+            {
+                if(_serverVariables == null)
+                    _serverVariables = new NameValueCollection();
+                _serverVariables.Add("ApplicationName", System.AppDomain.CurrentDomain.FriendlyName);
+                _serverVariables.Add("ApplicationPath", System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName);
+                _serverVariables.Add("MachineName", Environment.MachineName);
+            }
+            catch { }
+
             var callerInfo = e.TryGetCallerInfo() ?? CallerInfo.Empty;
             if (!callerInfo.IsEmpty)
             {
