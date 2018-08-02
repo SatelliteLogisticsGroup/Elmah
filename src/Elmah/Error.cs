@@ -30,6 +30,7 @@ namespace Elmah
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Configuration;
     using System.Diagnostics;
     using System.Linq;
     using System.Security;
@@ -165,7 +166,14 @@ namespace Elmah
             {
                 if(_serverVariables == null)
                     _serverVariables = new NameValueCollection();
-                _serverVariables.Add("ApplicationName", System.AppDomain.CurrentDomain.FriendlyName);
+	            try
+	            {
+					// try to extract "ApplicationId" app setting, makes it much easier to identify the environment the application is running in
+		            _serverVariables.Add("ApplicationId", ConfigurationManager.AppSettings["ApplicationId"]);
+				}
+				catch { }
+
+	            _serverVariables.Add("ApplicationName", System.AppDomain.CurrentDomain.FriendlyName);
                 _serverVariables.Add("ApplicationPath", System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName);
                 _serverVariables.Add("MachineName", Environment.MachineName);
             }
